@@ -18,12 +18,12 @@ void led_init() {
   alert_led2();
 }
 
-Ticker& blink_led1(bool fast) {
+Ticker &blink_led1(bool fast) {
   blinker.attach(&tog_led1, fast ? BLINK_SPEED_F : BLINK_SPEED_S);
   return blinker;
 }
 
-Ticker& blink_led2(bool fast) {
+Ticker &blink_led2(bool fast) {
   blinker.attach(&tog_led2, fast ? BLINK_SPEED_F : BLINK_SPEED_S);
   return blinker;
 }
