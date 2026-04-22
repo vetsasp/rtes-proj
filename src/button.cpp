@@ -1,34 +1,36 @@
 #include "mbed.h"
 
 #include "button.h"
-
-static button_state_t button_state;
+#include "event_queue.h"
 
 InterruptIn button(BUTTON1);
-Timer button_timer;
-static button_callback_t callback;
+static Ticker double_press_timer;
 static uint32_t last_press_time;
+static uint8_t press_count;
 
-void on_press() {
+static void on_double_press_timeout();
+
+static void on_press() {
   uint32_t now = us_ticker_read();
-  if (now - last_press_time > BUTTON_DEBOUNCE_MS) {
+  if (now - last_press_time > BUTTON_DEBOUNCE_US) {
     last_press_time = now;
     press_count++;
+    double_press_timer.attach(&on_double_press_timeout,
+                              BUTTON_DOUBLE_PRESS_WINDOW_MS * 1ms);
   }
 }
 
-void on_double_press_timeout() {
-  if (callback)
-    callback(press_count == 2 ? BUTTON_DOUBLE_PRESS : BUTTON_SINGLE_PRESS);
+static void on_double_press_timeout() {
+  double_press_timer.detach();
+  if (press_count > 0) {
+    event_queue_push(
+        press_count >= 2 ? EVENT_BUTTON_DOUBLE : EVENT_BUTTON_SINGLE, 0);
+  }
+  press_count = 0;
 }
 
 void button_init() {
-  button_state.last_press_time = 0;
-  button_state.press_count = 0;
-  button_state.is_pressed = false;
-  button_callback = NULL;
-
+  press_count = 0;
+  last_press_time = 0;
   button.fall(&on_press);
-
-  button_timer.attach(&on_double_press_timeout, BUTTON_DOUBLE_PRESS_WINDOW_MS);
 }
