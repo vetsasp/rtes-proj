@@ -18,7 +18,6 @@ void handle_events() {
 }
 
 int main(void) {
-  printf("Hello World!\n");
   init_hardware();
   printf("Ready\n");
 
