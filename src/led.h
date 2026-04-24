@@ -1,3 +1,5 @@
+#pragma once
+
 #include "mbed.h"
 
 #define BLINK_SPEED_S 500ms

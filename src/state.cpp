@@ -12,9 +12,23 @@ void state_init() {
     printf("state_init(): %d\n", state);
   }
 }
+
 machine_state_t state_get() {
-  if (DEBUG)
-    printf("state_get(): %d\n", state);
   return state;
 }
-void state_set(machine_state_t);
+
+void state_set(machine_state_t next) {
+  if (state == next)
+    return;
+  state = next;
+  if (DEBUG)
+    printf("state_set(): %d\n", state);
+}
+
+bool state_lock_is_set() { return lock_set; }
+
+void state_lock_set(bool set) {
+  lock_set = set;
+  if (DEBUG)
+    printf("lock_set: %d\n", (int)lock_set);
+}

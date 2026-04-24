@@ -1,3 +1,5 @@
+#pragma once
+
 #include "mbed.h"
 
 #define BUTTON_DOUBLE_PRESS_WINDOW_MS    500

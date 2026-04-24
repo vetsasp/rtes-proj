@@ -1,4 +1,9 @@
-#define EVENT_QUEUE_SIZE  16
+#pragma once
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#define EVENT_QUEUE_SIZE 16
 
 typedef enum {
     EVENT_NONE = 0,

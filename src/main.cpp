@@ -2,20 +2,43 @@
 
 #include "button.h"
 #include "event_queue.h"
+#include "gesture.h"
 #include "led.h"
 #include "sensor.h"
+#include "state.h"
 
 void init_hardware() {
   led_init();
   event_queue_init();
   button_init();
   sensor_init();
+  state_init();
+  gesture_recorder_init();
 }
 
 void handle_events() {
   event_t ev;
-  if (event_queue_pop(&ev)) {
-    printf("Event: %d\n", ev.type);
+  while (event_queue_pop(&ev)) {
+    if (DEBUG)
+      printf("Event: %d\n", ev.type);
+
+    switch (ev.type) {
+    case EVENT_BUTTON_SINGLE:
+      // Enter input mode only if a combination exists.
+      if (state_get() == STATE_IDLE && state_lock_is_set()) {
+        state_set(STATE_INPUT);
+        gesture_recorder_begin_input();
+      }
+      break;
+    case EVENT_BUTTON_DOUBLE:
+      // Enter set mode and start recording a new combination.
+      state_lock_set(false);
+      state_set(STATE_SET);
+      gesture_recorder_begin_set();
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -25,24 +48,14 @@ int main(void) {
 
   sensor_data_t data;
 
-  for (size_t i = 0; i < 20; i++) {
-    if (sensor_read(&data)) {
-      int ax = (int)(data.acc[0] * 1000);
-      int ay = (int)(data.acc[1] * 1000);
-      int az = (int)(data.acc[2] * 1000);
-      int gx = (int)(data.gyro[0] * 100);
-      int gy = (int)(data.gyro[1] * 100);
-      int gz = (int)(data.gyro[2] * 100);
-      printf("acc: %d.%03d %d.%03d %d.%03d gyro: %d.%02d %d.%02d %d.%02d\n",
-             ax / 1000, ax < 0 ? -ax % 1000 : ax % 1000,
-             ay / 1000, ay < 0 ? -ay % 1000 : ay % 1000,
-             az / 1000, az < 0 ? -az % 1000 : az % 1000,
-             gx / 100, gx < 0 ? -gx % 100 : gx % 100,
-             gy / 100, gy < 0 ? -gy % 100 : gy % 100,
-             gz / 100, gz < 0 ? -gz % 100 : gz % 100);
-    }
-    // handle_events();
-  }
+  while (true) {
+    handle_events();
 
-  exit(0);
+    if (sensor_read(&data)) {
+      const uint32_t now_ms = us_ticker_read() / 1000;
+      gesture_recorder_on_sample(&data, now_ms);
+    }
+
+    thread_sleep_for(1);
+  }
 }
