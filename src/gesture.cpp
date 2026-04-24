@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include "config.h"
+#include "dtw.h"
 #include "gesture.h"
 #include "state.h"
 
@@ -126,9 +128,20 @@ static void finish_gesture() {
       if (DEBUG)
         printf("gesture: combination recorded\n");
     } else if (rec_mode == REC_INPUT) {
+      bool ok = true;
+      for (size_t k = 0; k < GESTURE_COUNT; k++) {
+        const gesture_t *a = &attempt[k];
+        const gesture_t *b = &combination[k];
+        const uint16_t w = dtw_sakoe_chiba_window(a->len, b->len);
+        const float score = dtw_normalized_6d_sakoe_chiba(a, b, w);
+        printf("dtw[%d]: a_len=%d b_len=%d w=%d score=%.4f\n", (int)k,
+               (int)a->len, (int)b->len, (int)w, (double)score);
+        if (!(score <= DTW_ACCEPT_THRESHOLD)) {
+          ok = false;
+        }
+      }
       state_set(STATE_IDLE);
-      if (DEBUG)
-        printf("gesture: attempt recorded\n");
+      printf(ok ? "UNLOCKED\n" : "DENIED\n");
     }
     rec_mode = REC_NONE;
   }

@@ -17,3 +17,14 @@
 // Require a short run of samples before declaring motion/still.
 #define MOTION_START_SAMPLES 3
 #define STILL_HOLD_SAMPLES 12
+
+// DTW matching (tune on real data)
+#define DTW_MIN_LEN 20
+#define DTW_MAX_LEN_RATIO 1.8f
+
+// Sakoe-Chiba window: w = max(DTW_WINDOW_MIN, DTW_WINDOW_RATIO * max(n, m))
+#define DTW_WINDOW_RATIO 0.20f
+#define DTW_WINDOW_MIN 10
+
+// Normalized DTW acceptance threshold. Lower is stricter.
+#define DTW_ACCEPT_THRESHOLD 0.60f
