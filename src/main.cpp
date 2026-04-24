@@ -25,10 +25,18 @@ void handle_events() {
     switch (ev.type) {
     case EVENT_BUTTON_SINGLE:
       // Enter input mode only if a combination exists.
-      if (state_get() == STATE_IDLE && state_lock_is_set()) {
-        state_set(STATE_INPUT);
-        gesture_recorder_begin_input();
+      if (!state_lock_is_set()) {
+        if (DEBUG)
+          printf("input: ignored (lock not set)\n");
+        break;
       }
+      if (state_get() != STATE_IDLE) {
+        if (DEBUG)
+          printf("input: ignored (state=%s)\n", state_name(state_get()));
+        break;
+      }
+      state_set(STATE_INPUT);
+      gesture_recorder_begin_input();
       break;
     case EVENT_BUTTON_DOUBLE:
       // Enter set mode and start recording a new combination.
