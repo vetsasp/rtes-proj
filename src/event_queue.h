@@ -10,7 +10,14 @@ typedef enum {
     EVENT_BUTTON_SINGLE,
     EVENT_BUTTON_DOUBLE,
     EVENT_TIMER_TICK,
-    EVENT_STATE_CHANGE
+    EVENT_STATE_CHANGE,
+
+    // Gesture/mode lifecycle (handled in main loop)
+    EVENT_GESTURE_SET_DONE,
+    // data=1 unlocked, data=0 denied
+    EVENT_GESTURE_INPUT_RESULT,
+    // data=STATE_SET or STATE_INPUT
+    EVENT_MODE_TIMEOUT
 } event_type_t;
 
 typedef struct {

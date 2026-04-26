@@ -18,6 +18,9 @@
 #define MOTION_START_SAMPLES 3
 #define STILL_HOLD_SAMPLES 12
 
+// Mode timeout: only counts while waiting still (not during movement/gesture).
+#define MODE_INACTIVITY_TIMEOUT_MS 30000
+
 // DTW matching (tune on real data)
 #define DTW_MIN_LEN 20
 #define DTW_MAX_LEN_RATIO 1.8f

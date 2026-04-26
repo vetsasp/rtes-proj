@@ -4,6 +4,7 @@
 
 #include "config.h"
 #include "dtw.h"
+#include "event_queue.h"
 #include "gesture.h"
 #include "state.h"
 
@@ -26,6 +27,9 @@ static uint16_t still_counter = 0;
 static uint16_t motion_counter = 0;
 
 static size_t gesture_idx = 0;
+
+static uint32_t inactivity_ms = 0;
+static uint32_t last_inactivity_tick_ms = 0;
 
 static gesture_t *active_gesture(size_t idx) {
   if (idx >= GESTURE_COUNT)
@@ -82,6 +86,8 @@ void gesture_recorder_begin_set() {
   gesture_idx = 0;
   armed = true;
   rec_mode = REC_SET;
+  inactivity_ms = 0;
+  last_inactivity_tick_ms = 0;
   reset_current_gesture();
   if (DEBUG)
     printf("gesture: begin set (%d)\n", (int)GESTURE_COUNT);
@@ -94,6 +100,8 @@ void gesture_recorder_begin_input() {
   gesture_idx = 0;
   armed = true;
   rec_mode = REC_INPUT;
+  inactivity_ms = 0;
+  last_inactivity_tick_ms = 0;
   reset_current_gesture();
   if (DEBUG)
     printf("gesture: begin input (%d)\n", (int)GESTURE_COUNT);
@@ -125,8 +133,7 @@ static void finish_gesture() {
     if (rec_mode == REC_SET) {
       state_lock_set(true);
       state_set(STATE_IDLE);
-      if (DEBUG)
-        printf("gesture: combination recorded\n");
+      event_queue_push(EVENT_GESTURE_SET_DONE, 0);
     } else if (rec_mode == REC_INPUT) {
       bool ok = true;
       for (size_t k = 0; k < GESTURE_COUNT; k++) {
@@ -134,14 +141,16 @@ static void finish_gesture() {
         const gesture_t *b = &combination[k];
         const uint16_t w = dtw_sakoe_chiba_window(a->len, b->len);
         const float score = dtw_normalized_6d_sakoe_chiba(a, b, w);
-        printf("dtw[%d]: a_len=%d b_len=%d w=%d score=%.4f\n", (int)k,
-               (int)a->len, (int)b->len, (int)w, (double)score);
+        if (DEBUG) {
+          printf("dtw[%d]: a_len=%d b_len=%d w=%d score=%.4f\n", (int)k,
+                 (int)a->len, (int)b->len, (int)w, (double)score);
+        }
         if (!(score <= DTW_ACCEPT_THRESHOLD)) {
           ok = false;
         }
       }
       state_set(STATE_IDLE);
-      printf(ok ? "UNLOCKED\n" : "DENIED\n");
+      event_queue_push(EVENT_GESTURE_INPUT_RESULT, ok ? 1 : 0);
     }
     rec_mode = REC_NONE;
   }
@@ -163,6 +172,33 @@ void gesture_recorder_on_sample(const sensor_data_t *data, uint32_t now_ms) {
     return;
 
   const bool still = is_still(data);
+
+  // Inactivity timeout: count only while waiting still (not moving, not in gesture).
+  if (last_inactivity_tick_ms != 0) {
+    const uint32_t dt = now_ms - last_inactivity_tick_ms;
+    if (!in_gesture && still) {
+      inactivity_ms += dt;
+    } else {
+      inactivity_ms = 0;
+    }
+  }
+  last_inactivity_tick_ms = now_ms;
+
+  if (!in_gesture && still && inactivity_ms >= MODE_INACTIVITY_TIMEOUT_MS) {
+    const machine_state_t timed_out_state =
+        (rec_mode == REC_SET) ? STATE_SET : STATE_INPUT;
+    if (DEBUG) {
+      printf("timeout: %s\n", state_name(timed_out_state));
+    }
+    armed = false;
+    rec_mode = REC_NONE;
+    inactivity_ms = 0;
+    last_inactivity_tick_ms = 0;
+    reset_current_gesture();
+    state_set(STATE_IDLE);
+    event_queue_push(EVENT_MODE_TIMEOUT, (uint32_t)timed_out_state);
+    return;
+  }
 
   if (!in_gesture) {
     if (still) {

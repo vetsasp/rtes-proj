@@ -10,22 +10,32 @@ void tog_led1() { led1 = !led1; }
 
 void tog_led2() { led2 = !led2; }
 
+void off_led1() { led1 = 0; }
+
+void off_led2() { led2 = 0; }
+
 void led_init() {
-  led1 = 0;
-  led2 = 0;
+  off_led1();
+  off_led2();
 
   alert_led1();
   alert_led2();
 }
 
 Ticker &blink_led1(bool fast) {
+  led1 = 1;
   blinker.attach(&tog_led1, fast ? BLINK_SPEED_F : BLINK_SPEED_S);
   return blinker;
 }
 
-Ticker &blink_led2(bool fast) {
+void blink_led2(bool fast) {
+  led2 = 1;
   blinker.attach(&tog_led2, fast ? BLINK_SPEED_F : BLINK_SPEED_S);
-  return blinker;
+}
+
+void stop_blink_led2() {
+  blinker.detach();
+  off_led2();
 }
 
 void alert_led1() {

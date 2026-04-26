@@ -35,14 +35,34 @@ void handle_events() {
           printf("input: ignored (state=%s)\n", state_name(state_get()));
         break;
       }
+      blink_led2(false);
       state_set(STATE_INPUT);
       gesture_recorder_begin_input();
       break;
     case EVENT_BUTTON_DOUBLE:
       // Enter set mode and start recording a new combination.
       state_lock_set(false);
+      blink_led2(false);
       state_set(STATE_SET);
       gesture_recorder_begin_set();
+      break;
+    case EVENT_GESTURE_SET_DONE:
+      stop_blink_led2();
+      if (DEBUG)
+        printf("gesture: combination recorded\n");
+      break;
+    case EVENT_GESTURE_INPUT_RESULT:
+      stop_blink_led2();
+      if (ev.data) {
+        printf("UNLOCKED\n");
+        tog_led1();
+      } else {
+        printf("DENIED\n");
+      }
+      break;
+    case EVENT_MODE_TIMEOUT:
+      stop_blink_led2();
+      printf("timeout: %s\n", state_name((machine_state_t)ev.data));
       break;
     default:
       break;
