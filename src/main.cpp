@@ -48,6 +48,7 @@ void handle_events() {
       break;
     case EVENT_GESTURE_SET_DONE:
       stop_blink_led2();
+      alert_led2_n(1, 120);
       if (DEBUG)
         printf("gesture: combination recorded\n");
       break;
@@ -56,12 +57,15 @@ void handle_events() {
       if (ev.data) {
         printf("UNLOCKED\n");
         tog_led1();
+        alert_led2_n(3);
       } else {
         printf("DENIED\n");
+        alert_led2_n(2);
       }
       break;
     case EVENT_MODE_TIMEOUT:
       stop_blink_led2();
+      alert_led2_n(1, 120);
       printf("timeout: %s\n", state_name((machine_state_t)ev.data));
       break;
     default:

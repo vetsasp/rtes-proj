@@ -133,7 +133,9 @@ static void finish_gesture() {
     if (rec_mode == REC_SET) {
       state_lock_set(true);
       state_set(STATE_IDLE);
-      event_queue_push(EVENT_GESTURE_SET_DONE, 0);
+      if (!event_queue_push(EVENT_GESTURE_SET_DONE, 0) && DEBUG) {
+        printf("event: drop SET_DONE\n");
+      }
     } else if (rec_mode == REC_INPUT) {
       bool ok = true;
       for (size_t k = 0; k < GESTURE_COUNT; k++) {
@@ -150,7 +152,9 @@ static void finish_gesture() {
         }
       }
       state_set(STATE_IDLE);
-      event_queue_push(EVENT_GESTURE_INPUT_RESULT, ok ? 1 : 0);
+      if (!event_queue_push(EVENT_GESTURE_INPUT_RESULT, ok ? 1 : 0) && DEBUG) {
+        printf("event: drop INPUT_RESULT\n");
+      }
     }
     rec_mode = REC_NONE;
   }
@@ -187,16 +191,16 @@ void gesture_recorder_on_sample(const sensor_data_t *data, uint32_t now_ms) {
   if (!in_gesture && still && inactivity_ms >= MODE_INACTIVITY_TIMEOUT_MS) {
     const machine_state_t timed_out_state =
         (rec_mode == REC_SET) ? STATE_SET : STATE_INPUT;
-    if (DEBUG) {
-      printf("timeout: %s\n", state_name(timed_out_state));
-    }
     armed = false;
     rec_mode = REC_NONE;
     inactivity_ms = 0;
     last_inactivity_tick_ms = 0;
     reset_current_gesture();
     state_set(STATE_IDLE);
-    event_queue_push(EVENT_MODE_TIMEOUT, (uint32_t)timed_out_state);
+    if (!event_queue_push(EVENT_MODE_TIMEOUT, (uint32_t)timed_out_state) &&
+        DEBUG) {
+      printf("event: drop TIMEOUT\n");
+    }
     return;
   }
 

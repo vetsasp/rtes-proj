@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "mbed.h"
 
 #define BLINK_SPEED_S 500ms
@@ -16,3 +18,7 @@ void blink_led2(bool fast = false);
 void stop_blink_led2();
 void alert_led1();
 void alert_led2();
+
+// Fast "something happened" flashes on LED2.
+// Ends with LED2 forced OFF.
+void alert_led2_n(uint8_t flashes, uint32_t pulse_ms = 70);
