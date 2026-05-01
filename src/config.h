@@ -6,7 +6,7 @@
 
 // How many gestures to record
 // changeable for testing
-#define GESTURE_COUNT 1
+#define GESTURE_COUNT 3
 
 // Hard cap per gesture to keep memory bounded.
 #define GESTURE_MAX_SAMPLES 256
@@ -33,3 +33,8 @@
 
 // Normalized DTW acceptance threshold. Lower is stricter.
 #define DTW_ACCEPT_THRESHOLD 0.60f
+
+// blink counts for affirmative/negative decisions
+#define INIT_BLINK_COUNT 5
+#define AFFIRMATIVE_BLINK_COUNT 3
+#define NEGATIVE_BLINK_COUNT 2

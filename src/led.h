@@ -8,6 +8,7 @@
 #define BLINK_SPEED_S 500ms
 #define BLINK_SPEED_F 100ms
 #define BLINK_SPEED_F_MS 100
+#define BLINK_SPEED_M_MS 120
 
 void led_init();
 bool led1_is_on();

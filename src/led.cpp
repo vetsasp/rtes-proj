@@ -1,3 +1,4 @@
+#include "config.h"
 #include "mbed.h"
 
 #include "led.h"
@@ -123,9 +124,9 @@ void alert_led2_n(uint8_t flashes, uint32_t pulse_ms) {
 }
 
 void alert_led1() {
-  alert_led1_n(5, BLINK_SPEED_F_MS);
+  alert_led1_n(INIT_BLINK_COUNT, BLINK_SPEED_F_MS);
 }
 
 void alert_led2() {
-  alert_led2_n(5, BLINK_SPEED_F_MS);
+  alert_led2_n(INIT_BLINK_COUNT, BLINK_SPEED_F_MS);
 }
