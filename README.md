@@ -1,6 +1,6 @@
-# Gesture Lock (B-L475E-IOT01A)
+# Gesture Lock
 
-Gesture-based lock using the on-board accelerometer and gyroscope. You record a Personal Identification Gesture (PIG) as a sequence of gestures, then enter it to toggle `LED1`.
+Gesture-based lock using the on-board accelerometer and gyroscope. You record a Personal Identification Gesture (PIG) as a sequence of gestures, then enter it to toggle `LED1`. Designed for the *STM32  B-L475E-IOT01A*, making use of the *PlatformIO*/*MBED* framework.
 
 ## Build / Upload
 
@@ -38,7 +38,7 @@ Timeout:
 
 - After an input attempt is recorded, the attempt is compared against the saved PIG using DTW (Sakoe-Chiba band + length ratio gate).
 
-### Configuration / Tuning
+## Configuration / Tuning
 
 Most knobs live in `src/config.h`:
 
