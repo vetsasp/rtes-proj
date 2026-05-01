@@ -40,7 +40,7 @@ void handle_events() {
       break;
     case EVENT_GESTURE_SET_DONE:
       stop_blink_led2();
-      alert_led2_n(1, BLINK_SPEED_M_MS);
+      alert_led2_n(SINGLE_BLINK, BLINK_SPEED_M_MS);
       if (DEBUG)
         printf("gesture: combination recorded\n");
       if (PIGSPEAK)
@@ -66,7 +66,7 @@ void handle_events() {
       break;
     case EVENT_MODE_TIMEOUT:
       stop_blink_led2();
-      alert_led2_n(1, BLINK_SPEED_M_MS);
+      alert_led2_n(SINGLE_BLINK, BLINK_SPEED_M_MS);
       printf("timeout: %s\n", state_name((machine_state_t)ev.data));
       break;
     default:
