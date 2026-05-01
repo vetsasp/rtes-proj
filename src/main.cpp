@@ -1,3 +1,4 @@
+#include "config.h"
 #include "mbed.h"
 
 #include "button.h"
@@ -26,8 +27,9 @@ void handle_events() {
     case EVENT_BUTTON_SINGLE:
       // Enter input mode only if a combination exists.
       if (!state_lock_is_set()) {
-        if (DEBUG)
-          printf("input: ignored (lock not set)\n");
+        if (PIGSPEAK)
+          printf("PIG not set - Please set a PIG first.\n");
+        alert_led2_n(2);
         break;
       }
       if (state_get() != STATE_IDLE) {
@@ -51,15 +53,24 @@ void handle_events() {
       alert_led2_n(1, 120);
       if (DEBUG)
         printf("gesture: combination recorded\n");
+      if (PIGSPEAK)
+        printf("PIG set!!\n");
       break;
     case EVENT_GESTURE_INPUT_RESULT:
       stop_blink_led2();
       if (ev.data) {
-        printf("UNLOCKED\n");
+        if (PIGSPEAK) {
+          if (led1_is_on()) {
+            printf("PIG CORRECT - TURNING LED OFF\n");
+          } else {
+            printf("PIG CORRECT - TURNING LED ON\n");
+          }
+        }
         tog_led1();
         alert_led2_n(3);
       } else {
-        printf("DENIED\n");
+        if (PIGSPEAK)
+          printf("PIG INCORRECT - ACCESS DENIED\n");
         alert_led2_n(2);
       }
       break;
@@ -76,7 +87,9 @@ void handle_events() {
 
 int main(void) {
   init_hardware();
-  printf("Ready\n");
+  if (PIGSPEAK)
+    printf("Ready: Double press then enter PIG (Personal Identification "
+           "Gesture)\n");
 
   sensor_data_t data;
 

@@ -1,5 +1,6 @@
 #include "mbed.h"
 
+#include "config.h"
 #include "state.h"
 
 static machine_state_t state;
@@ -18,6 +19,19 @@ const char *state_name(machine_state_t s) {
   }
 }
 
+const char *state_msg(machine_state_t s) {
+  switch (s) {
+  case STATE_IDLE:
+    return "IDLE";
+  case STATE_SET:
+    return "SET: Please enter PIG";
+  case STATE_INPUT:
+    return "INPUT: Please enter PIG";
+  default:
+    return "?";
+  }
+}
+
 void state_init() {
   state = STATE_IDLE;
   lock_set = false;
@@ -26,9 +40,7 @@ void state_init() {
   }
 }
 
-machine_state_t state_get() {
-  return state;
-}
+machine_state_t state_get() { return state; }
 
 void state_set(machine_state_t next) {
   if (state == next)
@@ -37,6 +49,8 @@ void state_set(machine_state_t next) {
   state = next;
   if (DEBUG)
     printf("state: %s -> %s\n", state_name(prev), state_name(state));
+  if (state == 1 || state == 2)
+    printf("%s\n", state_msg(state));
 }
 
 bool state_lock_is_set() { return lock_set; }

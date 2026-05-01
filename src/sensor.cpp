@@ -1,5 +1,6 @@
 #include "mbed.h"
 
+#include "config.h"
 #include "sensor.h"
 
 static I2C i2c(PB_11, PB_10);
@@ -45,7 +46,8 @@ bool sensor_init() {
     printf("sensor: wrong ID 0x%02X\n", who);
     return false;
   }
-  printf("sensor: found\n");
+  if (DEBUG)
+    printf("sensor: found\n");
 
   write_reg(CTRL3_C, 0x44);
   write_reg(CTRL1_XL, 0x40);
@@ -64,7 +66,8 @@ bool sensor_init() {
   }
 
   int1_pin.rise(&data_ready_isr);
-  printf("sensor: ready\n");
+  if (DEBUG)
+    printf("sensor: ready\n");
   return true;
 }
 

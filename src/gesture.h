@@ -28,11 +28,11 @@ void gesture_recorder_begin_set();
 // Prepare to record an unlock attempt in STATE_INPUT.
 void gesture_recorder_begin_input();
 
-// Feed sensor samples (call when sensor_read() returns true).
+// Feed sensor samples.
 void gesture_recorder_on_sample(const sensor_data_t *data, uint32_t now_ms);
 
 // Read-only access for later comparison.
 const gesture_t *gesture_get_combination(size_t idx);
 
-// Last recorded input attempt (for later comparison).
+// Last recorded input attempt.
 const gesture_t *gesture_get_attempt(size_t idx);

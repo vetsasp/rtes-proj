@@ -115,7 +115,7 @@ static void finish_gesture() {
   if (!g)
     return;
 
-  // Drop the still tail; stillness is not part of the gesture.
+  // Drop still tail; stillness is not part of gesture.
   if (g->len >= STILL_HOLD_SAMPLES) {
     g->len -= STILL_HOLD_SAMPLES;
   } else {
@@ -177,7 +177,7 @@ void gesture_recorder_on_sample(const sensor_data_t *data, uint32_t now_ms) {
 
   const bool still = is_still(data);
 
-  // Inactivity timeout: count only while waiting still (not moving, not in gesture).
+  // Inactivity timeout: count only while still.
   if (last_inactivity_tick_ms != 0) {
     const uint32_t dt = now_ms - last_inactivity_tick_ms;
     if (!in_gesture && still) {

@@ -1,9 +1,11 @@
 #pragma once
 
-#define DEBUG true
+#define DEBUG false
 
-// Gesture recording
-// Set to 1 for bring-up/testing; final target is 3.
+#define PIGSPEAK true
+
+// How many gestures to record
+// changeable for testing
 #define GESTURE_COUNT 1
 
 // Hard cap per gesture to keep memory bounded.
