@@ -13,7 +13,9 @@ typedef enum {
     EVENT_STATE_CHANGE,
     EVENT_GESTURE_SET_DONE,
     EVENT_GESTURE_INPUT_RESULT,		// data=1 unlocked, data=0 denied
-    EVENT_MODE_TIMEOUT
+    EVENT_MODE_TIMEOUT,
+    EVENT_GESTURE_INTERMEDIATE_DONE,
+    EVENT_LED2_ALERT_DONE
 } event_type_t;
 
 typedef struct {

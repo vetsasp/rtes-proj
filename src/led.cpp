@@ -1,6 +1,7 @@
 #include "config.h"
 #include "mbed.h"
 
+#include "event_queue.h"
 #include "led.h"
 
 DigitalOut led1(LED1);
@@ -30,6 +31,8 @@ static void led2_alert_tick() {
   if (led2_alert_toggles_left == 0) {
     blinker2.detach();
     led2 = 0;
+    // Signal completion so main loop can resume blink.
+    event_queue_push(EVENT_LED2_ALERT_DONE, 0);
   }
 }
 

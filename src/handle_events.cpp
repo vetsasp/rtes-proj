@@ -9,6 +9,7 @@
 
 void handle_events() {
   event_t ev;
+  static bool resume_blink_led2_after_alert = false;
   while (event_queue_pop(&ev)) {
     if (DEBUG)
       printf("Event: %d\n", ev.type);
@@ -28,6 +29,7 @@ void handle_events() {
         break;
       }
       blink_led2(false);
+      resume_blink_led2_after_alert = false;
       state_set(STATE_INPUT);
       gesture_recorder_begin_input();
       break;
@@ -35,11 +37,20 @@ void handle_events() {
       // Enter set mode and start recording a new combination.
       state_lock_set(false);
       blink_led2(false);
+      resume_blink_led2_after_alert = false;
       state_set(STATE_SET);
       gesture_recorder_begin_set();
       break;
+    case EVENT_GESTURE_INTERMEDIATE_DONE:
+      // Separator between gestures
+      printf("gesture %ld\n", ev.data);
+      stop_blink_led2();
+      resume_blink_led2_after_alert = true;
+      alert_led2_n(INTER_GESTURE_BLINK_COUNT, BLINK_SPEED_M_MS);
+      break;
     case EVENT_GESTURE_SET_DONE:
       stop_blink_led2();
+      resume_blink_led2_after_alert = false;
       alert_led2_n(SINGLE_BLINK, BLINK_SPEED_M_MS);
       if (DEBUG)
         printf("gesture: combination recorded\n");
@@ -48,6 +59,7 @@ void handle_events() {
       break;
     case EVENT_GESTURE_INPUT_RESULT:
       stop_blink_led2();
+      resume_blink_led2_after_alert = false;
       if (ev.data) {
         if (PIGSPEAK) {
           if (led1_is_on()) {
@@ -66,8 +78,16 @@ void handle_events() {
       break;
     case EVENT_MODE_TIMEOUT:
       stop_blink_led2();
+      resume_blink_led2_after_alert = false;
       alert_led2_n(SINGLE_BLINK, BLINK_SPEED_M_MS);
       printf("timeout: %s\n", state_name((machine_state_t)ev.data));
+      break;
+    case EVENT_LED2_ALERT_DONE:
+      if (resume_blink_led2_after_alert &&
+          (state_get() == STATE_SET || state_get() == STATE_INPUT)) {
+        blink_led2(false);
+      }
+      resume_blink_led2_after_alert = false;
       break;
     default:
       break;

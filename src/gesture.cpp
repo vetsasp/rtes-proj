@@ -128,6 +128,12 @@ static void finish_gesture() {
   gesture_idx++;
   reset_current_gesture();
 
+  // Between gestures, emit an event for UI feedback.
+  if (gesture_idx < GESTURE_COUNT) {
+    // data = completed gesture count so far
+    event_queue_push(EVENT_GESTURE_INTERMEDIATE_DONE, (uint32_t)gesture_idx);
+  }
+
   if (gesture_idx >= GESTURE_COUNT) {
     armed = false;
     if (rec_mode == REC_SET) {
