@@ -1,5 +1,7 @@
 # Gesture Lock
 
+> https://github.com/vetsasp/HPML-Final-Project
+
 Gesture-based lock using the on-board accelerometer and gyroscope. You record a Personal Identification Gesture (PIG) as a sequence of gestures, then enter it to toggle `LED1`. Designed for the *STM32  B-L475E-IOT01A*, making use of the *PlatformIO*/*MBED* framework.
 
 ## Build / Upload
